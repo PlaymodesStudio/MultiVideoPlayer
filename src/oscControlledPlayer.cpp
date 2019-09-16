@@ -43,6 +43,7 @@ void oscControlledPlayer::draw(){
 void oscControlledPlayer::loadVideo(std::string path){
     player.loadAsync(path);
     player.setSpeed(0);
+    filename = ofSplitString(path, "/").back();
     inUse = true;
 }
 
@@ -56,4 +57,9 @@ void oscControlledPlayer::playVideo(){
 
 void oscControlledPlayer::setOpacity(float _opacity){
     opacity = _opacity;
+}
+
+std::string oscControlledPlayer::getLayerInfo(){
+    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Loop: False";
+    return info;
 }

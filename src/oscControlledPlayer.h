@@ -25,12 +25,14 @@ public:
     void setOpacity(float _opacity);
     
     bool isInUse(){return inUse;};
+    std::string getLayerInfo();
     
 private:
     ofVideoPlayer player;
     bool inUse;
     float opacity;
     bool play;
+    std::string filename;
 };
 
 #endif /* oscControlledPlayer_h */

@@ -61,7 +61,12 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     fbo.draw(0, 0);
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, 10);
+    int i = 0;
+    for(auto &playerpair : players){
+        ofDrawBitmapString(playerpair.first + " " + playerpair.second.getLayerInfo(), 10, 10+(10*i));
+        i++;
+    }
+    ofDrawBitmapString(ofToString(ofGetFrameRate()), ofGetWidth() -10, ofGetHeight()-10);
 }
 
 //--------------------------------------------------------------
