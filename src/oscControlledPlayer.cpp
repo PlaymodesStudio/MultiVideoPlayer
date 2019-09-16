@@ -42,6 +42,7 @@ void oscControlledPlayer::draw(){
 
 void oscControlledPlayer::loadVideo(std::string path){
     player.loadAsync(path);
+    player.setSpeed(0);
     inUse = true;
 }
 
@@ -49,6 +50,7 @@ void oscControlledPlayer::playVideo(){
     if(player.isLoaded()){
         play = true;
         player.play();
+        player.setSpeed(1);
     }
 }
 
