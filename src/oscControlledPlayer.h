@@ -23,14 +23,18 @@ public:
     void loadVideo(std::string path);
     void playVideo();
     void setOpacity(float _opacity);
+    void setLoop(bool loop);
+    void setUnloadAfterPlay(bool unload);
     
     bool isInUse(){return inUse;};
+    bool getUnloadAfterPlay(){return unloadAfterPlay;};
     std::string getLayerInfo();
     
 private:
     ofVideoPlayer player;
     bool inUse;
     float opacity;
+    bool unloadAfterPlay;
     bool play;
     std::string filename;
 };

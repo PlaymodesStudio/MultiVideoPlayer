@@ -14,6 +14,7 @@ oscControlledPlayer::oscControlledPlayer(){
     player.stop();
     opacity = 0;
     play = false;
+    unloadAfterPlay = true;
 }
 
 oscControlledPlayer::~oscControlledPlayer(){
@@ -57,6 +58,14 @@ void oscControlledPlayer::playVideo(){
 
 void oscControlledPlayer::setOpacity(float _opacity){
     opacity = _opacity;
+}
+
+void oscControlledPlayer::setLoop(bool loop){
+    player.setLoopState(loop ? OF_LOOP_NORMAL : OF_LOOP_NONE);
+}
+
+void oscControlledPlayer::setUnloadAfterPlay(bool unload){
+    unloadAfterPlay = unload;
 }
 
 std::string oscControlledPlayer::getLayerInfo(){

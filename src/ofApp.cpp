@@ -15,7 +15,7 @@ void ofApp::update(){
     vector<string> keysToErase;
     for(auto &playerpair : players){
         playerpair.second.update();
-        if(!playerpair.second.isInUse()){
+        if(!playerpair.second.isInUse() && playerpair.second.getUnloadAfterPlay()){
             keysToErase.push_back(playerpair.first);
         }
     }
