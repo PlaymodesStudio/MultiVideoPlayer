@@ -12,7 +12,7 @@ oscControlledPlayer::oscControlledPlayer(){
     player.setVolume(0);
     player.setLoopState(OF_LOOP_NONE);
     player.stop();
-    opacity = 0;
+    opacity = 1;
     play = false;
     unloadAfterPlay = true;
 }
@@ -28,15 +28,16 @@ void oscControlledPlayer::update(){
         
         if(player.getIsMovieDone()){
             inUse = false;
+            play = false;
         }
     }
 }
 
-void oscControlledPlayer::draw(){
+void oscControlledPlayer::draw(int x, int y){
     if(player.isFrameNew()){
         ofPushStyle();
         ofSetColor(ofFloatColor(opacity, 1));
-        player.draw(0, 0);
+        player.draw(x, y);
         ofPopStyle();
     }
 }
@@ -44,6 +45,7 @@ void oscControlledPlayer::draw(){
 void oscControlledPlayer::loadVideo(std::string path){
     player.loadAsync(path);
     player.setSpeed(0);
+    player.setLoopState(OF_LOOP_NONE);
     filename = ofSplitString(path, "/").back();
     inUse = true;
 }

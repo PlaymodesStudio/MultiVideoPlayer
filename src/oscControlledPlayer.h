@@ -18,7 +18,7 @@ public:
     ~oscControlledPlayer();
     
     void update();
-    void draw();
+    void draw(int x = 0, int y = 0);
     
     void loadVideo(std::string path);
     void playVideo();
@@ -27,6 +27,7 @@ public:
     void setUnloadAfterPlay(bool unload);
     
     bool isInUse(){return inUse;};
+    bool isPlaying(){return play;};
     bool getUnloadAfterPlay(){return unloadAfterPlay;};
     std::string getLayerInfo();
     
