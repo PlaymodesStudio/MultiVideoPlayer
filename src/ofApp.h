@@ -5,7 +5,7 @@
 #include "oscControlledPlayer.h"
 #include "ofxSyphonServer.h"
 
-#define PORT 11111
+#define PORT 9999
 
 class ofApp : public ofBaseApp{
 
