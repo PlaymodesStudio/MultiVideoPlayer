@@ -1,2 +1,4 @@
+ofxImGui
 ofxOsc
 ofxSyphon
+ofxWatchdog

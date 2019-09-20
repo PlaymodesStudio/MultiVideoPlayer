@@ -2,18 +2,80 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    oscReceiver.setup(PORT);
+//    ofDisableArbTex();
+    oscReceiver.setup(INPORT);
     ofSetFrameRate(60);
     
-    fbo.allocate(640, 100, GL_RGB);
+    fbo.allocate(WIDTH, HEIGHT, GL_RGB);
     fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-    syphonServer.setName("Main");
     
+    helperFbo.allocate(WIDTH*2, 8, GL_RGB);
+    helperFbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    
+    syphonServer.setName("Main");
+    gui.setup(0);
+    showGui = false;
+    
+    //Load Standby
+    players["Standby"].loadVideo("Video_6.mov");
+    players["Standby"].setLoop(false);
+    players["Standby"].setUnloadAfterPlay(false);
     //Load all 7 videos;
-    for(int i = 0; i < 7; i++){
-        players["Video_" + ofToString(i) + "_0"].loadVideo("Video_" + ofToString(int(ofRandom(1, 5))) + ".mov");
+    for(int i = 1; i < 9; i++){
+        players["Video_" + ofToString(i) + "_0"].loadVideo("Video_" + ofToString(6/*int(ofRandom(1, 5))*/) + ".mov");
         players["Video_" + ofToString(i) + "_0"].setLoop(false);
+        players["Video_" + ofToString(i) + "_0"].setUnloadAfterPlay(true);
     }
+    
+    deviceStatus = vector<bool>(8, false);
+    thresholdSend = vector<bool>(8, true);
+    
+    ofxOscMessage m;
+    m.setAddress("/status");
+    oscSenders.resize(8);
+    for(int i = 0; i < 8; i++){
+        oscSenders[i].setup("192.168.1." + ofToString(241+i), OUTPORT);
+        oscSenders[i].sendMessage(m);
+    }
+    
+    channel = std::shared_ptr<ofxImGui::LoggerChannel>(new ofxImGui::LoggerChannel());
+    ofSetLoggerChannel(channel);
+    
+    vector<int> interiorSensorCoordinates = {0, 543, 1086, 1630, 2173, 2716, 3259, 4020};
+    vector<int> exteriorSensorCoordinates = {0, 600, 1200, 1800, 2400, 3000, 3600, 4440};
+    
+    auto addSquareToMesh = [this](ofVboMesh &mesh, ofRectangle inRect, ofRectangle outRect){
+        glm::vec3 dimensions(1, 1, 1);
+        mesh.addTexCoord(inRect.getTopLeft()/dimensions);
+        mesh.addTexCoord(inRect.getTopRight()/dimensions);
+        mesh.addTexCoord(inRect.getBottomRight()/dimensions);
+        mesh.addTexCoord(inRect.getTopLeft()/dimensions);
+        mesh.addTexCoord(inRect.getBottomRight()/dimensions);
+        mesh.addTexCoord(inRect.getBottomLeft()/dimensions);
+        
+        mesh.addVertex(outRect.getTopLeft());
+        mesh.addVertex(outRect.getTopRight());
+        mesh.addVertex(outRect.getBottomRight());
+        mesh.addVertex(outRect.getTopLeft());
+        mesh.addVertex(outRect.getBottomRight());
+        mesh.addVertex(outRect.getBottomLeft());
+    };
+    
+    meshes.resize(8);
+    for(int i = 0; i < 8; i++){
+        //top
+        int center = interiorSensorCoordinates[i];
+        addSquareToMesh(meshes[i], ofRectangle(0, 0, 4020, 1), ofRectangle(0, 1, center, 1));
+        addSquareToMesh(meshes[i], ofRectangle(4020, 0, 4020, 1), ofRectangle(center, 1, 4020-center, 1));
+        
+        //bottom
+        center = exteriorSensorCoordinates[i];
+        addSquareToMesh(meshes[i], ofRectangle(0, 1, 4440, 1), ofRectangle(0, 0, center, 1));
+        addSquareToMesh(meshes[i], ofRectangle(4440, 1, 4440, 1), ofRectangle(center, 0, 4440-center, 1));
+        
+    }
+    lastUserTime = ofGetElapsedTimef();
+    
 }
 
 //--------------------------------------------------------------
@@ -22,22 +84,12 @@ void ofApp::update(){
         playerpair.second.update();
     }
     vector<string> keysToErase;
-    for(int id = 0; id < 7; id++){
-        for(int i = 0; i < 10; i++){
-            if(players.count("Video_" + ofToString(id) + "_" + ofToString(i)) != 0){
-                if(!players["Video_" + ofToString(id) + "_" + ofToString(i)].isInUse()){
-                    keysToErase.push_back("Video_" + ofToString(id) + "_" + ofToString(i));
-                }
-            }
+    for(auto &playerpair : players){
+        if(!playerpair.second.isInUse() && playerpair.second.getUnloadAfterPlay()){
+            keysToErase.push_back(playerpair.first);
         }
     }
-//    for(auto &playerpair : players){
-//        playerpair.second.update();
-//        if(!playerpair.second.isInUse(){
-//            playerpair.second.getUnloadAfterPlay()){
-//            keysToErase.push_back(playerpair.first);
-//        }
-//    }
+
     for(auto key : keysToErase) players.erase(key);
     
     while(oscReceiver.hasWaitingMessages()){
@@ -47,6 +99,7 @@ void ofApp::update(){
         if(splitAddress.size() > 0){
             if(splitAddress[0] == "") splitAddress.erase(splitAddress.begin());
             if(splitAddress[0] == "User_Detected"){
+                lastUserTime = ofGetElapsedTimef();
                 int id = m.getArgAsInt(0);
                 int emptySpot = -1;
                 int toPlaySpot = -1;
@@ -63,46 +116,49 @@ void ofApp::update(){
                     i++;
                 }
                 players["Video_" + ofToString(id) + "_" +ofToString(toPlaySpot)].playVideo();
-                players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].loadVideo("Video_" + ofToString(int(ofRandom(1, 5))) + ".mov");
+                players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].loadVideo("Video_" + ofToString(6/*int(ofRandom(1, 5))*/) + ".mov");
+                players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].setUnloadAfterPlay(true);
+            }else if(splitAddress[0] == "Information"){
+                int id = ofToInt(splitAddress[1]);
+                deviceStatus[id-1] = true;
+                ofLog() << "ID: " << id << " - " << m.getArgAsString(0);
+                if(m.getArgAsString(0) == "Online"){
+                    
+                }
             }
         }
-        
-        
-//        std::string identifier = splitAddress[0];
-//        std::string action = splitAddress[1];
-//        ofLog() << identifier << " " << action;
-//
-//        //Check if player on map
-//        if(players.count(identifier) == 0){
-//            players[identifier];
-//        }
-//
-//        if(action == "load"){
-//            players[identifier].loadVideo(m.getArgAsString(0));
-//        }
-//        else if(action == "play"){
-//            players[identifier].playVideo();
-//        }
-//        else if(action == "opacity"){
-//            players[identifier].setOpacity(m.getArgAsFloat(0));
-//        }
+    }
+    
+    float newTime = ofGetElapsedTimef();
+//    ofLog() << int(newTime - lastUserTime);
+    if(lastUserTime+60 < newTime){ //60 seconnds have passed, trigger standby video
+        lastUserTime = newTime;
+        players["Standby"].playVideo();
     }
     
     
     fbo.begin();
     ofBackground(0);
     ofEnableBlendMode(OF_BLENDMODE_SCREEN);
-    for(int id = 0; id < 7; id++){
-        int x = ((504/7)*id) + (68) - (640);
+    for(int id = 1; id < 9; id++){
+        helperFbo.begin();
+        ofClear(0);
         for(int i = 0; i < 10; i++){
             if(players.count("Video_" + ofToString(id) + "_" + ofToString(i)) != 0){
-                players["Video_" + ofToString(id) + "_" + ofToString(i)].draw(x);
+                players["Video_" + ofToString(id) + "_" + ofToString(i)].draw();
             }
         }
+        helperFbo.end();
+        
+        helperFbo.getTexture().bind();
+        meshes[id-1].draw();
+        helperFbo.getTexture().unbind();
     }
-//    for(auto &playerpair : players){
-//        playerpair.second.draw();
-//    }
+    ofPushMatrix();
+    ofTranslate(0, 2);
+    ofScale(0.5, -1);
+    players["Standby"].draw();
+    ofPopMatrix();
     ofDisableBlendMode();
     fbo.end();
     syphonServer.publishTexture(&fbo.getTexture());
@@ -110,18 +166,101 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    fbo.draw(0, 0);
-    int i = 0;
-    for(auto &playerpair : players){
-        ofDrawBitmapString(playerpair.first + " " + playerpair.second.getLayerInfo(), 10, 10+(10*i));
-        i++;
+    fbo.draw(0, 0, ofGetWidth(), ofGetHeight());
+    
+    auto mainSettings = ofxImGui::Settings();
+    
+    mainSettings.windowPos = glm::vec2(10, fbo.getHeight() + 10);
+    
+    if(showGui){
+    gui.begin();
+    {
+        if (ofxImGui::BeginWindow("Devices", mainSettings, false))
+        {
+            if(ImGui::Button("Check Devices")){
+                deviceStatus = vector<bool>(8, false);
+                ofxOscMessage m;
+                m.setAddress("/status");
+                for(auto &s : oscSenders) s.sendMessage(m);
+            }
+            //Device Checkers
+            ImGui::Text("Device Checkers");
+            for (int i = 1; i < 9; ++i)
+            {
+                ImGui::RadioButton(("Device " + ofToString(i)).c_str(), deviceStatus[i-1]);
+            }
+        }
+        int width = ImGui::GetWindowWidth();
+        int height = ImGui::GetWindowHeight();
+        ofxImGui::EndWindow(mainSettings);
+        
+        mainSettings.windowPos = glm::vec2(20 + width, fbo.getHeight() + 10);
+        if (ofxImGui::BeginWindow("Threshold Control", mainSettings, false))
+        {
+            if(ImGui::SliderInt("Threshold Time (ms)", &thresholdTime, 0, 10000)){
+                ofxOscMessage m;
+                m.setAddress("/thresholdTime");
+                m.addIntArg(thresholdTime);
+                for(int i = 0; i < oscSenders.size(); i++){
+                    if(thresholdSend[i])
+                        oscSenders[i].sendMessage(m);
+                };
+            }
+            if(ImGui::SliderFloat("Threshold Value (mts)", &thresholdValue, 0, 5)){
+                ofxOscMessage m;
+                m.setAddress("/thresholdValue");
+                m.addFloatArg(thresholdValue);
+                for(int i = 0; i < oscSenders.size(); i++){
+                    if(thresholdSend[i]){
+                        ofLog() << i+1;
+                        oscSenders[i].sendMessage(m);
+                    }
+                };
+            }
+            ImGui::Columns(8);
+            for (int i = 1; i < 9; ++i)
+            {
+                bool selected = thresholdSend[i-1];
+                if(ImGui::Checkbox((ofToString(i)).c_str(), &selected)){
+                    thresholdSend[i-1] = !thresholdSend[i-1];
+                }
+                ImGui::NextColumn();
+            }
+            ImGui::Columns(1);
+        }
+        int height2 = ImGui::GetWindowHeight();
+        ofxImGui::EndWindow(mainSettings);
+        
+        
+        ImGui::SetNextWindowSize(glm::vec2(450, 110), ImGuiCond_Appearing);
+        ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetWindowPos(glm::vec2(20 + width, fbo.getHeight() + 20 + height2));
+        ImGui::TextUnformatted(channel->getBuffer().begin());
+        if(channel->getBuffer().size() != lastSizeChannnel)
+            ImGui::SetScrollHere(1.0f);
+        lastSizeChannnel = channel->getBuffer().size();
+        ImGui::End();
+        
+        mainSettings.windowPos = glm::vec2(10, 230);
+        if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
+        {
+            for(auto &playerpair : players){
+                ImGui::Text("%s", (playerpair.first + " " + playerpair.second.getLayerInfo()).c_str());
+            }
+        }
+        ofxImGui::EndWindow(mainSettings);
     }
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), ofGetWidth() -10, ofGetHeight()-10);
+    gui.end();
+    }
+    
+    ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, ofGetHeight()-10);
+    ofDrawBitmapString("(g) key toggles GUI", 100, ofGetHeight()-10);
+    ofDrawBitmapString("Time Since Last Interaction: " + ofToString(int(60+(lastUserTime-ofGetElapsedTimef()))), 300, ofGetHeight()-10);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'g' || key == 'G') showGui = !showGui;
 }
 
 //--------------------------------------------------------------

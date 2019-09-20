@@ -29,6 +29,10 @@ void oscControlledPlayer::update(){
         if(player.getIsMovieDone()){
             inUse = false;
             play = false;
+            if(!unloadAfterPlay){
+                player.stop();
+                player.firstFrame();
+            }
         }
     }
 }
@@ -53,6 +57,7 @@ void oscControlledPlayer::loadVideo(std::string path){
 void oscControlledPlayer::playVideo(){
     if(player.isLoaded()){
         play = true;
+        inUse = true;
         player.play();
         player.setSpeed(1);
     }

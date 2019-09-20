@@ -4,8 +4,13 @@
 #include "ofxOsc.h"
 #include "oscControlledPlayer.h"
 #include "ofxSyphonServer.h"
+#include "ofxImGui.h"
+#include "ofxImGuiLoggerChannel.h"
 
-#define PORT 9999
+#define INPORT 9999
+#define OUTPORT 8888
+#define WIDTH 4440
+#define HEIGHT 2
 
 class ofApp : public ofBaseApp{
 
@@ -27,7 +32,22 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     ofxOscReceiver oscReceiver;
+    vector<ofxOscSender> oscSenders;
+    vector<bool> deviceStatus;
+    vector<bool> thresholdSend;
     std::unordered_map<string, oscControlledPlayer> players;
     ofFbo fbo;
+    ofFbo helperFbo;
     ofxSyphonServer syphonServer;
+    
+    bool showGui;
+    ofxImGui::Gui gui;
+    int thresholdTime = 2000;
+    float thresholdValue = 1;
+    vector<ofVboMesh> meshes;
+    
+    float lastUserTime;
+    
+    shared_ptr<ofxImGui::LoggerChannel> channel;
+    int lastSizeChannnel;
 };
