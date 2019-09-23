@@ -21,7 +21,7 @@ public:
     void draw(int x = 0, int y = 0);
     
     void loadVideo(std::string path);
-    void playVideo();
+    bool playVideo();
     void setOpacity(float _opacity);
     void setLoop(bool loop);
     void setUnloadAfterPlay(bool unload);

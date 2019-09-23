@@ -12,13 +12,14 @@ oscControlledPlayer::oscControlledPlayer(){
     player.setVolume(0);
     player.setLoopState(OF_LOOP_NONE);
     player.stop();
+    //player.setUseTexture(false);
     opacity = 1;
     play = false;
     unloadAfterPlay = true;
 }
 
 oscControlledPlayer::~oscControlledPlayer(){
-    
+
 }
 
 void oscControlledPlayer::update(){
@@ -29,8 +30,8 @@ void oscControlledPlayer::update(){
         if(player.getIsMovieDone()){
             inUse = false;
             play = false;
+            player.stop();
             if(!unloadAfterPlay){
-                player.stop();
                 player.firstFrame();
             }
         }
@@ -54,12 +55,18 @@ void oscControlledPlayer::loadVideo(std::string path){
     inUse = true;
 }
 
-void oscControlledPlayer::playVideo(){
+bool oscControlledPlayer::playVideo(){
     if(player.isLoaded()){
         play = true;
         inUse = true;
         player.play();
         player.setSpeed(1);
+        return true;
+    }else{
+        if(unloadAfterPlay){
+            inUse = false;
+        }
+        return false;
     }
 }
 

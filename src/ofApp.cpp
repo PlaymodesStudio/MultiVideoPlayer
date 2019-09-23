@@ -16,13 +16,25 @@ void ofApp::setup(){
     gui.setup(0);
     showGui = false;
     
+    currentVideoId = 9;
+    
+    backgroundOpacity.set("Background Opacity", 0.3, 0, 1);
+    ofDeserialize(ofLoadJson("Settings.json"), backgroundOpacity);
+    
+    //Load Background
+    players["Background"].loadVideo("Video_9.mov");
+    players["Background"].setLoop(true);
+    players["Background"].setUnloadAfterPlay(false);
+    players["Background"].setOpacity(backgroundOpacity);
+//    while(!players["Background"].playVideo());
+    
     //Load Standby
-    players["Standby"].loadVideo("Video_6.mov");
+    players["Standby"].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
     players["Standby"].setLoop(false);
     players["Standby"].setUnloadAfterPlay(false);
     //Load all 7 videos;
     for(int i = 1; i < 9; i++){
-        players["Video_" + ofToString(i) + "_0"].loadVideo("Video_" + ofToString(6/*int(ofRandom(1, 5))*/) + ".mov");
+        players["Video_" + ofToString(i) + "_0"].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
         players["Video_" + ofToString(i) + "_0"].setLoop(false);
         players["Video_" + ofToString(i) + "_0"].setUnloadAfterPlay(true);
     }
@@ -63,6 +75,8 @@ void ofApp::setup(){
     
     meshes.resize(8);
     for(int i = 0; i < 8; i++){
+        /// Method 1
+        /*
         //top
         int center = interiorSensorCoordinates[i];
         addSquareToMesh(meshes[i], ofRectangle(0, 0, 4020, 1), ofRectangle(0, 1, center, 1));
@@ -72,6 +86,16 @@ void ofApp::setup(){
         center = exteriorSensorCoordinates[i];
         addSquareToMesh(meshes[i], ofRectangle(0, 1, 4440, 1), ofRectangle(0, 0, center, 1));
         addSquareToMesh(meshes[i], ofRectangle(4440, 1, 4440, 1), ofRectangle(center, 0, 4440-center, 1));
+        */
+        
+        /// Method 2
+        //top
+        int center = interiorSensorCoordinates[i];
+        addSquareToMesh(meshes[i], ofRectangle(0, 0, 8120, 1), ofRectangle(center-4060, 1, 8120, 1));
+        
+        //bottom
+        center = exteriorSensorCoordinates[i];
+        addSquareToMesh(meshes[i], ofRectangle(0, 1, 8960, 1), ofRectangle(center-4480, 0, 8960, 1));
         
     }
     lastUserTime = ofGetElapsedTimef();
@@ -80,6 +104,8 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    if(!players["Background"].isPlaying()) players["Background"].playVideo();
+    
     for(auto &playerpair : players){
         playerpair.second.update();
     }
@@ -89,57 +115,18 @@ void ofApp::update(){
             keysToErase.push_back(playerpair.first);
         }
     }
-
-    for(auto key : keysToErase) players.erase(key);
     
-    while(oscReceiver.hasWaitingMessages()){
-        ofxOscMessage m;
-        oscReceiver.getNextMessage(m);
-        std::vector<std::string> splitAddress = ofSplitString(m.getAddress(), "/");
-        if(splitAddress.size() > 0){
-            if(splitAddress[0] == "") splitAddress.erase(splitAddress.begin());
-            if(splitAddress[0] == "User_Detected"){
-                lastUserTime = ofGetElapsedTimef();
-                int id = m.getArgAsInt(0);
-                int emptySpot = -1;
-                int toPlaySpot = -1;
-                int i = 0;
-                while(emptySpot == -1 || toPlaySpot == -1){
-                    if(emptySpot == -1){
-                        if(players.count("Video_" + ofToString(id) + "_" +ofToString(i)) == 0) emptySpot = i;
-                    }
-                    if(toPlaySpot == -1){
-                        if(players.count("Video_" + ofToString(id) + "_" +ofToString(i)) != 0){
-                            if(!players["Video_" + ofToString(id) + "_" +ofToString(i)].isPlaying()) toPlaySpot = i;
-                        }
-                    }
-                    i++;
-                }
-                players["Video_" + ofToString(id) + "_" +ofToString(toPlaySpot)].playVideo();
-                players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].loadVideo("Video_" + ofToString(6/*int(ofRandom(1, 5))*/) + ".mov");
-                players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].setUnloadAfterPlay(true);
-            }else if(splitAddress[0] == "Information"){
-                int id = ofToInt(splitAddress[1]);
-                deviceStatus[id-1] = true;
-                ofLog() << "ID: " << id << " - " << m.getArgAsString(0);
-                if(m.getArgAsString(0) == "Online"){
-                    
-                }
-            }
-        }
+    
+    for(auto key : keysToErase){
+//        float now = ofGetElapsedTimef();
+        players.erase(key);
+//        ofLog() << "Delete took: " << ofGetElapsedTimef()-now << "s";
     }
-    
-    float newTime = ofGetElapsedTimef();
-//    ofLog() << int(newTime - lastUserTime);
-    if(lastUserTime+60 < newTime){ //60 seconnds have passed, trigger standby video
-        lastUserTime = newTime;
-        players["Standby"].playVideo();
-    }
-    
     
     fbo.begin();
     ofBackground(0);
     ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+    
     for(int id = 1; id < 9; id++){
         helperFbo.begin();
         ofClear(0);
@@ -154,14 +141,67 @@ void ofApp::update(){
         meshes[id-1].draw();
         helperFbo.getTexture().unbind();
     }
+    
     ofPushMatrix();
     ofTranslate(0, 2);
     ofScale(0.5, -1);
     players["Standby"].draw();
+    players["Background"].draw();
     ofPopMatrix();
     ofDisableBlendMode();
     fbo.end();
     syphonServer.publishTexture(&fbo.getTexture());
+
+    
+//    float now = ofGetElapsedTimef();
+    vector<int> idCreated;
+    while(oscReceiver.hasWaitingMessages()){
+        ofxOscMessage m;
+        oscReceiver.getNextMessage(m);
+        std::vector<std::string> splitAddress = ofSplitString(m.getAddress(), "/");
+        if(splitAddress.size() > 0){
+            if(splitAddress[0] == "") splitAddress.erase(splitAddress.begin());
+            if(splitAddress[0] == "User_Detected"){
+                lastUserTime = ofGetElapsedTimef();
+                int id = m.getArgAsInt(0);
+                if(std::find(idCreated.begin(), idCreated.end(), id) == idCreated.end()){
+                    int emptySpot = -1;
+                    int toPlaySpot = -1;
+                    int i = 0;
+                    while(emptySpot == -1 || toPlaySpot == -1){
+                        if(emptySpot == -1){
+                            if(players.count("Video_" + ofToString(id) + "_" +ofToString(i)) == 0) emptySpot = i;
+                        }
+                        if(toPlaySpot == -1){
+                            if(players.count("Video_" + ofToString(id) + "_" +ofToString(i)) != 0){
+                                if(!players["Video_" + ofToString(id) + "_" +ofToString(i)].isPlaying()) toPlaySpot = i;
+                            }
+                        }
+                        i++;
+                    }
+                    players["Video_" + ofToString(id) + "_" +ofToString(toPlaySpot)].playVideo();
+                    players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
+                    players["Video_" + ofToString(id) + "_" +ofToString(emptySpot)].setUnloadAfterPlay(true);
+                    idCreated.push_back(id);
+                }
+            }else if(splitAddress[0] == "Information"){
+                int id = ofToInt(splitAddress[1]);
+                deviceStatus[id-1] = true;
+                ofLog() << "ID: " << id << " - " << m.getArgAsString(0);
+                if(m.getArgAsString(0) == "Online"){
+                    
+                }
+            }
+        }
+    }
+//    ofLog() << "Delete took: " << ofGetElapsedTimef()-now << "s";
+    
+    float newTime = ofGetElapsedTimef();
+//    ofLog() << int(newTime - lastUserTime);
+    if(lastUserTime+60 < newTime){ //60 seconnds have passed, trigger standby video
+        lastUserTime = newTime;
+        players["Standby"].playVideo();
+    }
 }
 
 //--------------------------------------------------------------
@@ -231,6 +271,18 @@ void ofApp::draw(){
         int height2 = ImGui::GetWindowHeight();
         ofxImGui::EndWindow(mainSettings);
         
+        mainSettings.windowPos = glm::vec2(10, 230);
+        if(ofxImGui::BeginWindow("Background", mainSettings, false)){
+            if(ofxImGui::AddParameter(backgroundOpacity)){
+                players["Background"].setOpacity(backgroundOpacity);
+                ofJson json;
+                ofSerialize(json, backgroundOpacity);
+                ofSavePrettyJson("Settings.json", json);
+            }
+        }
+        int height3 = ImGui::GetWindowHeight();
+        ofxImGui::EndWindow(mainSettings);
+        
         
         ImGui::SetNextWindowSize(glm::vec2(450, 110), ImGuiCond_Appearing);
         ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
@@ -241,7 +293,7 @@ void ofApp::draw(){
         lastSizeChannnel = channel->getBuffer().size();
         ImGui::End();
         
-        mainSettings.windowPos = glm::vec2(10, 230);
+        mainSettings.windowPos = glm::vec2(10, 230  + height3 + 10);
         if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
         {
             for(auto &playerpair : players){
@@ -253,9 +305,12 @@ void ofApp::draw(){
     gui.end();
     }
     
+    ofPushStyle();
+    ofSetColor(255,0,0),
     ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, ofGetHeight()-10);
     ofDrawBitmapString("(g) key toggles GUI", 100, ofGetHeight()-10);
     ofDrawBitmapString("Time Since Last Interaction: " + ofToString(int(60+(lastUserTime-ofGetElapsedTimef()))), 300, ofGetHeight()-10);
+    ofPopStyle();
 }
 
 //--------------------------------------------------------------
