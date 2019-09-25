@@ -32,29 +32,12 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     ofxOscReceiver oscReceiver;
-    vector<ofxOscSender> oscSenders;
-    vector<bool> deviceStatus;
-    vector<bool> thresholdSend;
     std::unordered_map<string, oscControlledPlayer> players;
     ofFbo fbo;
-    ofFbo helperFbo;
     ofxSyphonServer syphonServer;
     
     bool showGui;
     ofxImGui::Gui gui;
-    int thresholdTime = 2000;
-    float thresholdValue = 1;
-    vector<ofVboMesh> meshes;
-    
-    float lastUserTime;
-    ofParameter<int> standbyTime;
-    
-    float lastChangedClipTime;
-    ofParameter<int> videoChangeTime;
-    
-    int currentVideoId;
-    
-    ofParameter<float> backgroundOpacity;
     
     shared_ptr<ofxImGui::LoggerChannel> channel;
     int lastSizeChannnel;
