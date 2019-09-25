@@ -6,10 +6,12 @@
 //
 
 #include "oscControlledPlayer.h"
+#include "ofGstVideoPlayer.h"
 
 oscControlledPlayer::oscControlledPlayer(){
     inUse = false;
-    player.setVolume(0);
+    player.setPlayer(std::shared_ptr<ofGstVideoPlayer>(new ofGstVideoPlayer));
+//    player.setVolume(0);
     player.setLoopState(OF_LOOP_NONE);
     player.stop();
     //player.setUseTexture(false);
@@ -32,19 +34,19 @@ void oscControlledPlayer::update(){
             play = false;
             player.stop();
             if(!unloadAfterPlay){
-                player.firstFrame();
+//                player.firstFrame();
             }
         }
     }
 }
 
 void oscControlledPlayer::draw(int x, int y){
-    if(player.isFrameNew()){
+    //if(player.isFrameNew()){
         ofPushStyle();
         ofSetColor(ofFloatColor(opacity, 1));
         player.draw(x, y);
         ofPopStyle();
-    }
+    //}
 }
 
 void oscControlledPlayer::loadVideo(std::string path){

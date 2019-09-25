@@ -1658,6 +1658,181 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>427CFB8DEC529175DE5A1BE5</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxGStreamer.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxGStreamer/src/ofxGStreamer.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>B17FC2FE17C5A1E325E0F4D3</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>ACDA7C81A6F82A656A6940BC</string>
+					<string>427CFB8DEC529175DE5A1BE5</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>src</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>68ABFC4AF1214FDD23F574A2</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>B17FC2FE17C5A1E325E0F4D3</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>ofxGStreamer</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>F19063B0EC4D063E8E2588EC</key>
+			<dict>
+				<key>fileRef</key>
+				<string>ACDA7C81A6F82A656A6940BC</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>ACDA7C81A6F82A656A6940BC</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxGStreamer.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxGStreamer/src/ofxGStreamer.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>99914ACFE280F79040368BC0</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstVideoPlayer.h</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstVideoPlayer.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>B12A5F6B3E43C6FC60EAE922</key>
+			<dict>
+				<key>fileRef</key>
+				<string>1EAD5E401C276F0559A3D840</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>1EAD5E401C276F0559A3D840</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstVideoPlayer.cpp</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstVideoPlayer.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>2769CF0CD7ADBCEAB30FFE6E</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstVideoGrabber.h</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstVideoGrabber.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>54C4B865AB1417794C54D310</key>
+			<dict>
+				<key>fileRef</key>
+				<string>1D1B49811A0BB0AE1E4B4628</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>1D1B49811A0BB0AE1E4B4628</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstVideoGrabber.cpp</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstVideoGrabber.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>D33150BF0D344CE6BDE08BAF</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstUtils.h</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstUtils.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>F026B00CC5EA7E16C500B95B</key>
+			<dict>
+				<key>fileRef</key>
+				<string>C9EDBF79742EA60614F8D081</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>C9EDBF79742EA60614F8D081</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofGstUtils.cpp</string>
+				<key>path</key>
+				<string>../../..//libs/openFrameworks/video/ofGstUtils.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>28A793DF501D94FDCABF21C7</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -1863,6 +2038,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -1924,6 +2101,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -1961,6 +2140,9 @@ fi
 						<string>$(OF_CORE_LIBS)</string>
 						<string>$(OF_CORE_FRAMEWORKS)</string>
 						<string>$(LIB_OF)</string>
+						<string>-F/Library/Frameworks</string>
+						<string>-framework</string>
+						<string>GStreamer</string>
 					</array>
 					<key>PRODUCT_NAME</key>
 					<string>$(TARGET_NAME)</string>
@@ -1978,6 +2160,7 @@ fi
 			<dict>
 				<key>children</key>
 				<array>
+					<string>68ABFC4AF1214FDD23F574A2</string>
 					<string>768C3255AF2F3E1A78DC4DF4</string>
 					<string>E6053AB7FEC63D5F83825B88</string>
 					<string>7F3C04577424427D348B1425</string>
@@ -4748,6 +4931,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -4828,6 +5013,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -4872,6 +5059,10 @@ fi
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
 					<string>0D78A06D6FD470C23F9AEAC7</string>
+					<string>F026B00CC5EA7E16C500B95B</string>
+					<string>54C4B865AB1417794C54D310</string>
+					<string>B12A5F6B3E43C6FC60EAE922</string>
+					<string>F19063B0EC4D063E8E2588EC</string>
 					<string>5C2607C471F8D48C0036C56E</string>
 					<string>E984796BE84AA4315636B6E7</string>
 					<string>00413C35AAE31B483D7538AB</string>
@@ -5003,6 +5194,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -5040,6 +5233,9 @@ fi
 						<string>$(OF_CORE_LIBS)</string>
 						<string>$(OF_CORE_FRAMEWORKS)</string>
 						<string>$(LIB_OF_DEBUG)</string>
+						<string>-F/Library/Frameworks</string>
+						<string>-framework</string>
+						<string>GStreamer</string>
 					</array>
 					<key>PRODUCT_NAME</key>
 					<string>$(TARGET_NAME)Debug</string>
@@ -5075,6 +5271,8 @@ fi
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>src</string>
+						<string>../../../addons/ofxGStreamer/src</string>
+						<string>/Library/Frameworks/GStreamer.framework/Headers</string>
 						<string>../../../addons/ofxImGui/libs</string>
 						<string>../../../addons/ofxImGui/libs/imgui</string>
 						<string>../../../addons/ofxImGui/libs/imgui/src</string>
@@ -5112,6 +5310,9 @@ fi
 						<string>$(OF_CORE_LIBS)</string>
 						<string>$(OF_CORE_FRAMEWORKS)</string>
 						<string>$(LIB_OF)</string>
+						<string>-F/Library/Frameworks</string>
+						<string>-framework</string>
+						<string>GStreamer</string>
 					</array>
 					<key>PRODUCT_NAME</key>
 					<string>$(TARGET_NAME)</string>

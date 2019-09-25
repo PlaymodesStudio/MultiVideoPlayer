@@ -1,3 +1,4 @@
+ofxGStreamer
 ofxImGui
 ofxOsc
 ofxSyphon

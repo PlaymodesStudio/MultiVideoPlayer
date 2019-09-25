@@ -47,6 +47,11 @@ class ofApp : public ofBaseApp{
     vector<ofVboMesh> meshes;
     
     float lastUserTime;
+    ofParameter<int> standbyTime;
+    
+    float lastChangedClipTime;
+    ofParameter<int> videoChangeTime;
+    
     int currentVideoId;
     
     ofParameter<float> backgroundOpacity;

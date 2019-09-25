@@ -16,22 +16,28 @@ void ofApp::setup(){
     gui.setup(0);
     showGui = false;
     
-    currentVideoId = 9;
+    currentVideoId = 0;
     
+    ofJson json = ofLoadJson("Settings.json");
     backgroundOpacity.set("Background Opacity", 0.3, 0, 1);
-    ofDeserialize(ofLoadJson("Settings.json"), backgroundOpacity);
+    ofDeserialize(json, backgroundOpacity);
+    
+    standbyTime.set("Standby Time", 60, 5, 300);
+    ofDeserialize(json, standbyTime);
+    videoChangeTime.set("Video Change Time", 120, 10, 1200);
+    ofDeserialize(json, videoChangeTime);
     
     //Load Background
-    players["Background"].loadVideo("Video_9.mov");
+    players["Background"].loadVideo("BASE_FractalNoise_v2.mov");
     players["Background"].setLoop(true);
     players["Background"].setUnloadAfterPlay(false);
     players["Background"].setOpacity(backgroundOpacity);
 //    while(!players["Background"].playVideo());
     
     //Load Standby
-    players["Standby"].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
-    players["Standby"].setLoop(false);
-    players["Standby"].setUnloadAfterPlay(false);
+//    players["Standby"].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
+//    players["Standby"].setLoop(false);
+//    players["Standby"].setUnloadAfterPlay(false);
     //Load all 7 videos;
     for(int i = 1; i < 9; i++){
         players["Video_" + ofToString(i) + "_0"].loadVideo("Video_" + ofToString(currentVideoId) + ".mov");
@@ -99,11 +105,13 @@ void ofApp::setup(){
         
     }
     lastUserTime = ofGetElapsedTimef();
-    
+    lastChangedClipTime = lastUserTime;
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    float nowTime = ofGetElapsedTimef();
+    
     if(!players["Background"].isPlaying()) players["Background"].playVideo();
     
     for(auto &playerpair : players){
@@ -142,10 +150,14 @@ void ofApp::update(){
         helperFbo.getTexture().unbind();
     }
     
+//    ofPushMatrix();
+//    ofTranslate(0, 2);
+//    ofScale(0.5, -1);
+//    players["Standby"].draw();
+//    ofPopMatrix();
     ofPushMatrix();
     ofTranslate(0, 2);
-    ofScale(0.5, -1);
-    players["Standby"].draw();
+    ofScale(1, -1);
     players["Background"].draw();
     ofPopMatrix();
     ofDisableBlendMode();
@@ -196,11 +208,15 @@ void ofApp::update(){
     }
 //    ofLog() << "Delete took: " << ofGetElapsedTimef()-now << "s";
     
-    float newTime = ofGetElapsedTimef();
 //    ofLog() << int(newTime - lastUserTime);
-    if(lastUserTime+60 < newTime){ //60 seconnds have passed, trigger standby video
-        lastUserTime = newTime;
-        players["Standby"].playVideo();
+//    if(lastUserTime + standbyTime < nowTime){ //60 seconnds have passed, trigger standby video
+//        lastUserTime = nowTime;
+//        players["Standby"].playVideo();
+//    }
+    
+    if(lastChangedClipTime + videoChangeTime < nowTime){
+        lastChangedClipTime = nowTime;
+        currentVideoId = (currentVideoId+1)%2;
     }
 }
 
@@ -273,10 +289,22 @@ void ofApp::draw(){
         
         mainSettings.windowPos = glm::vec2(10, 230);
         if(ofxImGui::BeginWindow("Background", mainSettings, false)){
+            bool someChanged = false;
             if(ofxImGui::AddParameter(backgroundOpacity)){
                 players["Background"].setOpacity(backgroundOpacity);
+                someChanged = true;
+            }
+            if(ofxImGui::AddParameter(standbyTime)){
+                someChanged = true;
+            }
+            if(ofxImGui::AddParameter(videoChangeTime)){
+                someChanged = true;
+            }
+            if(someChanged){
                 ofJson json;
                 ofSerialize(json, backgroundOpacity);
+                ofSerialize(json, standbyTime);
+                ofSerialize(json, videoChangeTime);
                 ofSavePrettyJson("Settings.json", json);
             }
         }
@@ -293,7 +321,7 @@ void ofApp::draw(){
         lastSizeChannnel = channel->getBuffer().size();
         ImGui::End();
         
-        mainSettings.windowPos = glm::vec2(10, 230  + height3 + 10);
+        mainSettings.windowPos = glm::vec2(10, 230  + height3 + 30);
         if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
         {
             for(auto &playerpair : players){
@@ -309,7 +337,7 @@ void ofApp::draw(){
     ofSetColor(255,0,0),
     ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, ofGetHeight()-10);
     ofDrawBitmapString("(g) key toggles GUI", 100, ofGetHeight()-10);
-    ofDrawBitmapString("Time Since Last Interaction: " + ofToString(int(60+(lastUserTime-ofGetElapsedTimef()))), 300, ofGetHeight()-10);
+    ofDrawBitmapString("Time Since Last Interaction: " + ofToString(int(standbyTime+(lastUserTime-ofGetElapsedTimef()))), 300, ofGetHeight()-10);
     ofPopStyle();
 }
 
