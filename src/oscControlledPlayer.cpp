@@ -85,6 +85,6 @@ void oscControlledPlayer::setUnloadAfterPlay(bool unload){
 }
 
 std::string oscControlledPlayer::getLayerInfo(){
-    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Loop: False";
+    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Status: " + (isPlaying() ? "Play" : "Stop") + " | Progress: " + ofToString(player.getPosition());
     return info;
 }

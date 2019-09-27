@@ -9,8 +9,8 @@
 
 #define INPORT 9999
 #define OUTPORT 8888
-#define WIDTH 4480
-#define HEIGHT 2
+#define WIDTH 640
+#define HEIGHT 100
 
 class ofApp : public ofBaseApp{
 

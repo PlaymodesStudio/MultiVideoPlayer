@@ -29,7 +29,6 @@ void ofApp::update(){
         }
     }
     
-    
     for(auto key : keysToErase){
         players.erase(key);
     }
@@ -53,9 +52,6 @@ void ofApp::update(){
         oscReceiver.getNextMessage(m);
         std::vector<std::string> splitAddress = ofSplitString(m.getAddress(), "/");
         if(splitAddress.size() > 0){
-            ofxOscMessage m;
-            oscReceiver.getNextMessage(m);
-            std::vector<std::string> splitAddress = ofSplitString(m.getAddress(), "/");
             if(splitAddress[0] == "") splitAddress.erase(splitAddress.begin());
             std::string identifier = splitAddress[0];
             std::string action = splitAddress[1];
@@ -154,23 +150,25 @@ void ofApp::draw(){
 //        ofxImGui::EndWindow(mainSettings);
 //
 //
-//        ImGui::SetNextWindowSize(glm::vec2(450, 110), ImGuiCond_Appearing);
-//        ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
-//        ImGui::SetWindowPos(glm::vec2(20 + width, fbo.getHeight() + 20 + height2));
-//        ImGui::TextUnformatted(channel->getBuffer().begin());
-//        if(channel->getBuffer().size() != lastSizeChannnel)
-//            ImGui::SetScrollHere(1.0f);
-//        lastSizeChannnel = channel->getBuffer().size();
-//        ImGui::End();
-//
-//        mainSettings.windowPos = glm::vec2(10, 230  + height3 + 30);
-//        if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
-//        {
-//            for(auto &playerpair : players){
-//                ImGui::Text("%s", (playerpair.first + " " + playerpair.second.getLayerInfo()).c_str());
-//            }
-//        }
-//        ofxImGui::EndWindow(mainSettings);
+        mainSettings.windowPos = glm::vec2(10, 10);
+        if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
+        {
+            for(auto &playerpair : players){
+                ImGui::Text("%s", (playerpair.first + " " + playerpair.second.getLayerInfo()).c_str());
+            }
+        }
+        ofxImGui::EndWindow(mainSettings);
+        
+        ImGui::SetNextWindowPos(glm::vec2(10, 200));
+        ImGui::SetNextWindowSize(glm::vec2(500, 180), ImGuiCond_Appearing);
+        ImGui::Begin("Log", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
+        ImGui::TextUnformatted(channel->getBuffer().begin());
+        if(channel->getBuffer().size() != lastSizeChannnel)
+            ImGui::SetScrollHere(1.0f);
+        lastSizeChannnel = channel->getBuffer().size();
+        ImGui::End();
+        
+       
     }
     gui.end();
     }
