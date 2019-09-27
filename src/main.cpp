@@ -12,10 +12,10 @@ int main( ){
     //   reboot : automatically restart the process
     // override : use internal signal handler (optional)
     //  verbose : print more log information (optional)
-    ofxWatchdog::boot(3000, true, true, true);
+//    ofxWatchdog::boot(3000, true, true, true);
     
     ofGLFWWindowSettings mainSettings;
-    mainSettings.setSize(650, 700);
+    mainSettings.setSize(1280, 400);
     mainSettings.setPosition(glm::vec2(500,0));
     mainSettings.windowMode = OF_WINDOW;
     mainSettings.resizable = true;
@@ -23,7 +23,7 @@ int main( ){
     ofCreateWindow(mainSettings);
     
     // ofxWatchdog::trap(void)
-    ofxWatchdog::trap();
+//    ofxWatchdog::trap();
     
 	// this kicks off the running of my app
 	// can be OF_WINDOW or OF_FULLSCREEN
