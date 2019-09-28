@@ -18,6 +18,8 @@ oscControlledPlayer::oscControlledPlayer(){
     opacity = 1;
     play = false;
     unloadAfterPlay = true;
+    isImage = false;
+    color = ofFloatColor(1, 1, 1);
 }
 
 oscControlledPlayer::~oscControlledPlayer(){
@@ -42,10 +44,14 @@ void oscControlledPlayer::update(){
 
 void oscControlledPlayer::draw(int x, int y){
     //if(player.isFrameNew()){
-        ofPushStyle();
-        ofSetColor(ofFloatColor(opacity, 1));
+    ofPushStyle();
+    ofSetColor(color * opacity);
+    if(isImage){
+        image.draw(x, y);
+    }else{
         player.draw(x, y);
-        ofPopStyle();
+    }
+    ofPopStyle();
     //}
 }
 
@@ -54,6 +60,12 @@ void oscControlledPlayer::loadVideo(std::string path){
     player.setSpeed(0);
     player.setLoopState(OF_LOOP_NONE);
     filename = ofSplitString(path, "/").back();
+    inUse = true;
+}
+
+void oscControlledPlayer::loadImage(std::string path){
+    image.load(path);
+    isImage = true;
     inUse = true;
 }
 
@@ -76,6 +88,10 @@ void oscControlledPlayer::setOpacity(float _opacity){
     opacity = _opacity;
 }
 
+void oscControlledPlayer::setColor(ofFloatColor _color){
+    color = _color;
+}
+
 void oscControlledPlayer::setLoop(bool loop){
     player.setLoopState(loop ? OF_LOOP_NORMAL : OF_LOOP_NONE);
 }
@@ -85,6 +101,9 @@ void oscControlledPlayer::setUnloadAfterPlay(bool unload){
 }
 
 std::string oscControlledPlayer::getLayerInfo(){
-    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Status: " + (isPlaying() ? "Play" : "Stop") + " | Progress: " + ofToString(player.getPosition());
+    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Color: " + ofToString(color);
+    if(!isImage){
+        info += ofToString(" | Status: " + ofToString(isPlaying() ? "Play" : "Stop") + " | Progress: " + ofToString(player.getPosition()));
+    }
     return info;
 }

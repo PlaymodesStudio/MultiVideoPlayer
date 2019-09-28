@@ -65,13 +65,23 @@ void ofApp::update(){
             }
             
             if(action == "load"){
-                players[identifier].loadVideo(m.getArgAsString(0));
+                if(ofSplitString(m.getArgAsString(0), ".").back() == "png"){
+                    players[identifier].loadImage(m.getArgAsString(0));
+                }else{
+                    players[identifier].loadVideo(m.getArgAsString(0));
+                }
             }
             else if(action == "play"){
                 players[identifier].playVideo();
             }
             else if(action == "opacity"){
                 players[identifier].setOpacity(m.getArgAsFloat(0));
+            }
+            else if(action == "color"){
+                players[identifier].setColor(ofFloatColor(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2)));
+            }
+            else if(action == "unload"){
+                players.erase(identifier);
             }
         }
     }

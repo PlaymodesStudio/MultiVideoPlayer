@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "ofVideoPlayer.h"
 #include "ofGraphics.h"
+#include "ofImage.h"
 
 class oscControlledPlayer{
 public:
@@ -21,8 +22,10 @@ public:
     void draw(int x = 0, int y = 0);
     
     void loadVideo(std::string path);
+    void loadImage(std::string path);
     bool playVideo();
     void setOpacity(float _opacity);
+    void setColor(ofFloatColor _color);
     void setLoop(bool loop);
     void setUnloadAfterPlay(bool unload);
     
@@ -33,11 +36,14 @@ public:
     
 private:
     ofVideoPlayer player;
+    ofImage image;
     bool inUse;
     float opacity;
     bool unloadAfterPlay;
     bool play;
+    bool isImage;
     std::string filename;
+    ofFloatColor color;
 };
 
 #endif /* oscControlledPlayer_h */
