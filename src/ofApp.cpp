@@ -13,6 +13,9 @@ void ofApp::setup(){
     gui.setup(0);
     showGui = false;
     
+    dataPath.set("Data Path", "");
+    ofDeserialize(ofLoadJson("dataPath.json"), dataPath);
+    
     channel = std::shared_ptr<ofxImGui::LoggerChannel>(new ofxImGui::LoggerChannel());
     ofSetLoggerChannel(channel);
 }
@@ -37,13 +40,15 @@ void ofApp::update(){
     ofBackground(0);
     ofEnableBlendMode(OF_BLENDMODE_SCREEN);
     
-    for(int id = 1; id < 9; id++){
-        for(auto &playerpair : players){
+    for(auto &playerpair : players){
+        if(playerpair.second.isPlaying()){
             playerpair.second.draw();
         }
     }
+    
     ofDisableBlendMode();
     fbo.end();
+    
     syphonServer.publishTexture(&fbo.getTexture());
 
     
@@ -53,35 +58,44 @@ void ofApp::update(){
         std::vector<std::string> splitAddress = ofSplitString(m.getAddress(), "/");
         if(splitAddress.size() > 0){
             if(splitAddress[0] == "") splitAddress.erase(splitAddress.begin());
-            std::string identifier = splitAddress[0];
-            std::string action = splitAddress[1];
-            ofLog() << identifier << " " << action;
-            
-            //Check if player on map
-            if(players.count(identifier) == 0){
-                players[identifier];
-                players[identifier].setLoop(false);
-                players[identifier].setUnloadAfterPlay(true);
-            }
-            
-            if(action == "load"){
-                if(ofSplitString(m.getArgAsString(0), ".").back() == "png"){
-                    players[identifier].loadImage(m.getArgAsString(0));
-                }else{
-                    players[identifier].loadVideo(m.getArgAsString(0));
+            if(splitAddress.size() == 1){
+                if(splitAddress[0] == "unloadAll"){
+                    players.clear();
                 }
-            }
-            else if(action == "play"){
-                players[identifier].playVideo();
-            }
-            else if(action == "opacity"){
-                players[identifier].setOpacity(m.getArgAsFloat(0));
-            }
-            else if(action == "color"){
-                players[identifier].setColor(ofFloatColor(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2)));
-            }
-            else if(action == "unload"){
-                players.erase(identifier);
+            }else if(splitAddress.size() == 2){
+                std::string identifier = splitAddress[0];
+                std::string action = splitAddress[1];
+                ofLog() << identifier << " " << action;
+                
+                //Check if player on map
+                if(players.count(identifier) == 0){
+                    players[identifier];
+                    players[identifier].setLoop(false);
+                    players[identifier].setUnloadAfterPlay(true);
+                }
+                
+                if(action == "load"){
+                    if(ofSplitString(m.getArgAsString(0), ".").back() == "png"){
+                        players[identifier].loadImage(dataPath.get() + m.getArgAsString(0));
+                    }else{
+                        players[identifier].loadVideo(dataPath.get() + m.getArgAsString(0));
+                    }
+                }
+                else if(action == "play"){
+                    players[identifier].playVideo();
+                }
+                else if(action == "opacity"){
+                    players[identifier].setOpacity(m.getArgAsFloat(0));
+                }
+                else if(action == "color"){
+                    players[identifier].setColor(ofFloatColor(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2)));
+                }
+                else if(action == "unload"){
+                    players.erase(identifier);
+                }
+                else if(action == "loop"){
+                    players[identifier].setLoop(m.getArgAsBool(0));
+                }
             }
         }
     }
@@ -161,6 +175,15 @@ void ofApp::draw(){
 //
 //
         mainSettings.windowPos = glm::vec2(10, 10);
+        if (ofxImGui::BeginWindow("Where is the Data?", mainSettings, false))
+        {
+            if(ofxImGui::AddParameter(dataPath)){
+                dataPath = dataPath;
+            }
+        }
+        ofxImGui::EndWindow(mainSettings);
+        
+        mainSettings.windowPos = glm::vec2(10, 85);
         if (ofxImGui::BeginWindow("Active Players", mainSettings, false))
         {
             for(auto &playerpair : players){
@@ -169,8 +192,8 @@ void ofApp::draw(){
         }
         ofxImGui::EndWindow(mainSettings);
         
-        ImGui::SetNextWindowPos(glm::vec2(10, 200));
-        ImGui::SetNextWindowSize(glm::vec2(500, 180), ImGuiCond_Appearing);
+        ImGui::SetNextWindowPos(glm::vec2(10, 300));
+        ImGui::SetNextWindowSize(glm::vec2(500, 90), ImGuiCond_Appearing);
         ImGui::Begin("Log", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
         ImGui::TextUnformatted(channel->getBuffer().begin());
         if(channel->getBuffer().size() != lastSizeChannnel)
@@ -188,6 +211,13 @@ void ofApp::draw(){
     ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, ofGetHeight()-10);
     ofDrawBitmapString("(g) key toggles GUI", 100, ofGetHeight()-10);
     ofPopStyle();
+}
+
+//--------------------------------------------------------------
+void ofApp::exit(){
+    ofJson json;
+    ofSerialize(json, dataPath);
+    ofSavePrettyJson("dataPath.json", json);
 }
 
 //--------------------------------------------------------------
@@ -242,5 +272,10 @@ void ofApp::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+    if(dragInfo.files.size() == 1){
+        string path = dragInfo.files[0];
+        if(ofSplitString(path, ".").size() == 1){
+            dataPath = path + "/";
+        }
+    }
 }

@@ -18,6 +18,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+        void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -38,6 +39,8 @@ class ofApp : public ofBaseApp{
     
     bool showGui;
     ofxImGui::Gui gui;
+
+    ofParameter<string> dataPath;
     
     shared_ptr<ofxImGui::LoggerChannel> channel;
     int lastSizeChannnel;
