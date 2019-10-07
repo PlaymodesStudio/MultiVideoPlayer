@@ -2,4 +2,5 @@ ofxGStreamer
 ofxImGui
 ofxOsc
 ofxSyphon
+ofxTimecode
 ofxWatchdog
