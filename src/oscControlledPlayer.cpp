@@ -10,12 +10,15 @@
 
 oscControlledPlayer::oscControlledPlayer(){
     inUse = false;
-    player.setPlayer(std::shared_ptr<ofGstVideoPlayer>(new ofGstVideoPlayer));
+    auto shared_gst_player = std::shared_ptr<ofGstVideoPlayer>(new ofGstVideoPlayer);
+    player.setPlayer(shared_gst_player);
 //    player.setVolume(0);
     player.setLoopState(OF_LOOP_NONE);
+//    shared_gst_player->setFrameByFrame(true);
+    loop = false;
     player.stop();
     //player.setUseTexture(false);
-    opacity = 1;
+    opacity = 0;
     play = false;
     unloadAfterPlay = true;
     isImage = false;
@@ -27,23 +30,25 @@ oscControlledPlayer::~oscControlledPlayer(){
 }
 
 void oscControlledPlayer::update(){
-    if(inUse){
-        if(play)
-            player.update();
-        
-        if(player.getIsMovieDone()){
+    if(inUse && !isImage){
+        bool loopstate = loop;//player.getLoopState() != OF_LOOP_NORMAL;
+        bool movieDone = player.getIsMovieDone();
+        if(movieDone && !loopstate){
             inUse = false;
-            play = false;
-            player.stop();
+            //play = false;
+            //            player.update();
             if(!unloadAfterPlay){
-//                player.firstFrame();
+                player.stop();
             }
+        }
+        if(play){
+            player.update();
         }
     }
 }
 
 void oscControlledPlayer::draw(int x, int y){
-    //if(player.isFrameNew()){
+//    if(player.isFrameNew()){
     ofPushStyle();
     ofSetColor(color * opacity);
     if(isImage){
@@ -52,12 +57,13 @@ void oscControlledPlayer::draw(int x, int y){
         player.draw(x, y);
     }
     ofPopStyle();
-    //}
+//    }
 }
 
 void oscControlledPlayer::loadVideo(std::string path){
     player.loadAsync(path);
-    player.setSpeed(0);
+//    play = true;
+//    player.setSpeed(0);
     player.setLoopState(OF_LOOP_NONE);
     filename = ofSplitString(path, "/").back();
     inUse = true;
@@ -65,16 +71,19 @@ void oscControlledPlayer::loadVideo(std::string path){
 
 void oscControlledPlayer::loadImage(std::string path){
     image.load(path);
+    filename = ofSplitString(path, "/").back();
     isImage = true;
     inUse = true;
+    play = true;
 }
 
 bool oscControlledPlayer::playVideo(){
     if(player.isLoaded()){
         play = true;
         inUse = true;
+        player.setPosition(0);
         player.play();
-        player.setSpeed(1);
+//        player.setSpeed(1);
         return true;
     }else{
         if(unloadAfterPlay){
@@ -82,6 +91,14 @@ bool oscControlledPlayer::playVideo(){
         }
         return false;
     }
+}
+
+void oscControlledPlayer::resume(){
+    player.setPaused(false);
+}
+
+void oscControlledPlayer::pause(){
+    player.setPaused(true);
 }
 
 void oscControlledPlayer::setOpacity(float _opacity){
@@ -92,7 +109,8 @@ void oscControlledPlayer::setColor(ofFloatColor _color){
     color = _color;
 }
 
-void oscControlledPlayer::setLoop(bool loop){
+void oscControlledPlayer::setLoop(bool _loop){
+    loop = _loop;
     player.setLoopState(loop ? OF_LOOP_NORMAL : OF_LOOP_NONE);
 }
 
@@ -100,10 +118,33 @@ void oscControlledPlayer::setUnloadAfterPlay(bool unload){
     unloadAfterPlay = unload;
 }
 
+void oscControlledPlayer::setPosition(float position){
+    player.setPosition(position);
+}
+
 std::string oscControlledPlayer::getLayerInfo(){
-    std::string info = "FILE: " + filename + " | Opacity: " + ofToString(opacity, 2) + " | Color: " + ofToString(color);
+    std::string info = "";
     if(!isImage){
-        info += ofToString(" | Status: " + ofToString(isPlaying() ? "Play" : "Stop") + " | Progress: " + ofToString(player.getPosition()));
+        info += ofToString(" | Status: " + ofToString(isPlaying() ? "Play" : "Stop") + " | Loop: " + ofToString(player.getLoopState() == OF_LOOP_NORMAL ? "true" : "false"));
     }
+    info += " | Color: " + ofToString(color) + " | FILE: " + filename;
     return info;
+}
+
+float oscControlledPlayer::getPosition(){
+    if(!play || isImage) return 0;
+    return player.getPosition();
+}
+
+float oscControlledPlayer::getDuration(){
+    if(!play || isImage) return 0;
+    return player.getDuration();
+}
+
+float oscControlledPlayer::getOpacity(){
+    return opacity;
+}
+
+void oscControlledPlayer::disable(){
+    inUse = false;
 }

@@ -24,14 +24,21 @@ public:
     void loadVideo(std::string path);
     void loadImage(std::string path);
     bool playVideo();
+    void pause();
+    void resume();
     void setOpacity(float _opacity);
     void setColor(ofFloatColor _color);
     void setLoop(bool loop);
     void setUnloadAfterPlay(bool unload);
+    void setPosition(float position);
+    void disable();
     
     bool isInUse(){return inUse;};
     bool isPlaying(){return play;};
     bool getUnloadAfterPlay(){return unloadAfterPlay;};
+    float getPosition();
+    float getDuration();
+    float getOpacity();
     std::string getLayerInfo();
     
 private:
@@ -41,6 +48,7 @@ private:
     float opacity;
     bool unloadAfterPlay;
     bool play;
+    bool loop;
     bool isImage;
     std::string filename;
     ofFloatColor color;
